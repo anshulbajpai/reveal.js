@@ -64,22 +64,21 @@ function readFile(filePath) {
 					</code></pre>
 				</section>
 				<section>
-					<section>
-						<h2>A fullfledged callback hell</h2>
-					</section>
-					<section>
-						<h3>Fetch from memory</h3>
-						<pre><code data-trim>
+					<h2>A fullfledged callback hell</h2>
+				</section>
+				<section>
+					<h3>Fetch from memory</h3>
+					<pre><code data-trim>
 function fetchFromMemory(callback) {
   setTimeout(function() {
     callback('This is data from memory')
   }, 3000);
 };					
-						</code></pre>
-					</section>
-					<section>
-						<h3>Let's add some random error</h3>
-						<pre><code data-trim>
+					</code></pre>
+				</section>
+				<section>
+					<h3>Let's add some random error</h3>
+					<pre><code data-trim>
 function isExceptionCase() {
   return Math.floor((Math.random()*100)+1) % 2 == 0;
 };
@@ -91,11 +90,12 @@ function fetchFromMemory(callback) {
   setTimeout(function() {
     callback('This is data from memory')
   }, 3000);
-};						</code></pre>
-					</section>
-					<section>
-						<h3>Fetch from remote call</h3>
-						<pre><code data-trim>
+};
+					</code></pre>
+				</section>
+				<section>
+					<h3>Fetch from remote call</h3>
+					<pre><code data-trim>
 function fetchFromRemoteCall(callback) {
   if(isExceptionCase()){
    throw "Remote call failed";
@@ -103,22 +103,24 @@ function fetchFromRemoteCall(callback) {
   setTimeout(function() {
     callback('This is data from remote call')
   }, 3000);
-};						</code></pre>
-					</section>
-					<section>
-						<h3>Let's stitch the components</h3>
-						<pre><code data-trim>
+};
+					</code></pre>
+				</section>
+				<section>
+					<h3>Let's stitch the components</h3>
+					<pre><code data-trim>
 function readWrite() {
   fetchFromMemory(function(memoryData) {
     fetchFromRemoteCall(function(remoteCallData) {
       console.log(memoryData + "-" + remoteCallData);
     });
   });  
-};						</code></pre>
-					</section>					
-					<section>
-						<h3>Let's add some error handling</h3>
-						<pre><code data-trim>
+};
+					</code></pre>
+				</section>					
+				<section>
+					<h3>Let's add some error handling</h3>
+					<pre><code data-trim>
 function readWrite() {
   try{
     fetchFromMemory(function(memoryData) {
@@ -135,13 +137,12 @@ function readWrite() {
   catch(err){
     console.error("Read from memory failed"); 
   }
-};						</code></pre>
-					</section>					
-				</section>
+};
+					</code></pre>
+				</section>					
 				<section>
-					<section>
-						<h3>What if your control flow instead of looking like this..</h3>					
-						<pre><code data-trim>
+					<h3>What if your control flow instead of looking like this..</h3>					
+					<pre><code data-trim>
 function1(){                                        
   doThis(function(){
     doThat(function(){
@@ -150,12 +151,13 @@ function1(){
       })  
     });  
   });
-}						
-						</code></pre>					
-					</section>
-					<section>
-						<h3>starts looking like this..</h3>					
-						<pre><code data-trim>
+};
+
+					</code></pre>					
+				</section>
+				<section>
+					<h3>starts looking like this..</h3>					
+					<pre><code data-trim>
 function1(){
   doThis()
   .then(function(){
@@ -167,12 +169,13 @@ function1(){
   .then(function(){
     // Some more logic	
   });
-}						
-						</code></pre>					
-					</section>
-					<section>
-						<h3>You remember this?</h3>
-						<pre><code data-trim>
+};
+
+					</code></pre>					
+				</section>
+				<section>
+					<h3>You remember this?</h3>
+					<pre><code data-trim>
 function readWrite() {
   try{
     fetchFromMemory(function(memoryData) {
@@ -189,11 +192,12 @@ function readWrite() {
   catch(err){
     console.error("Read from memory failed"); 
   }
-};						</code></pre>
-					</section>					
-					<section>
-						<h3>What if we turn it to this...</h3>
-						<pre><code data-trim>
+};
+					</code></pre>
+				</section>					
+				<section>
+					<h3>What if we turn it into this...</h3>
+					<pre><code data-trim>
 function readWritePromises() {
   var memoryData;
   fetchFromMemoryPromise()
@@ -207,9 +211,9 @@ function readWritePromises() {
   .fail(function(reason) {
     console.error(reason);
   });
-};							</code></pre>
-					</section>					
-				</section>
+};
+						</code></pre>
+				</section>					
 				<section>
 					<h2>What are promises?</h2>
 					<p>
@@ -220,14 +224,62 @@ function readWritePromises() {
 					<h2>Advantages?</h2>
 					<ul>
 						<li class="fragment">More natural flow of control structure</li>
-						<li class="fragment">Easy to create chain of promises</li>
+						<li class="fragment">They are truly asynchronous</li>
+						<li class="fragment">Can easily be chained</li>
 						<li class="fragment">Values are automatically pushed down</li>
 						<li class="fragment">Errors are automatically bubbled up</li>
-						<li class="fragment">Further abstractions can be created with promises</li>
+						<li class="fragment">Further code abstractions can be created</li>
 					</ul>
 				</section>
+				<section>
+					<h2 style="text-transform:none;">q</h2>
+					<h3 style="text-transform:none;">javascript implementation by Kris Kowal</h3>
+					<p>
+						<small><a href="http://github.com/kriskowal/q">https://github.com/kriskowal/q</a></br><a href="http://documentup.com/kriskowal/q">http://documentup.com/kriskowal/q</a></small>
+					</p>
+				</section>
+				<section>
+					<h3>You remember this?</h3>
+					<pre><code data-trim>
+function readWritePromises() {
+  var memoryData;
+  fetchFromMemoryPromise()
+  .then(function(data) {
+    memoryData = data;
+    return fetchFromRemoteCallPromise(); 
+  })
+  .then(function(data) {
+    printData(memoryData + "-" + data);
+  })
+  .fail(function(reason) {
+    console.error(reason);
+  });
+};
+						</code></pre>
+					<p class="fragment">There is one thing above that most of us will hate</p>	
+					<p class="fragment">the variable <code><i><strong>memoryData</strong></i></code></p>					
+					<p class="fragment">How could we get rid of it?</p>	
+				</section>					
+				<section>
+					<h3>By combining them</h3>
+					<pre><code data-trim>
+function readWriteWithSpread() {
+  fetchFromMemoryPromise()
+  .then(function(data) {
+    return [data, fetchFromRemoteCallPromise()];
+  })
+  .spread(function(memoryData, remoteData) {
+    printData(memoryData + "-" + remoteData);
+  })
+  .fail(function(reason) {
+    console.log(reason);
+  });
+};
+						</code></pre>
+					<p class="fragment">Though it is asynchronous, but this is still sequential</p>	
+					<p class="fragment">remote call won't happen until memory read finishes</p>	<p class="fragment">Can we improve further?</p>
+				</section>
 			</div>
-
 		</div>
 
 		<script src="lib/js/head.min.js"></script>
