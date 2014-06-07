@@ -49,6 +49,9 @@
 						<small><a href="http://in.linkedin.com/in/anshulbajpai">Anshul Bajpai</a> / <a href="http://twitter.com/anshulbajpai">@anshulbajpai</a></small>
 					</p>
 					<img src="http://equalexperts.com/resources/img/eelogo.png" style="border:none;"></img>
+					<p>
+						<small><a href="http://www.equalexperts.com/">http://www.equalexperts.com</a></small>
+					</p>
 				</section>
 				<section>
 					<h2>A typical Javascript callback</h2>
@@ -143,7 +146,7 @@ function readWrite() {
 				<section>
 					<h3>What if your control flow instead of looking like this..</h3>					
 					<pre><code data-trim>
-function1(){                                        
+function foo(){                                        
   doThis(function(){
     doThat(function(){
       doSomeMore(function(){
@@ -158,7 +161,7 @@ function1(){
 				<section>
 					<h3>starts looking like this..</h3>					
 					<pre><code data-trim>
-function1(){
+function foo(){
   doThis()
   .then(function(){
     doThat();
@@ -261,7 +264,7 @@ function readWritePromises() {
 					<p class="fragment">How could we get rid of it?</p>	
 				</section>					
 				<section>
-					<h3>By combining them</h3>
+					<h3>By combining promises</h3>
 					<pre><code data-trim>
 function readWriteWithSpread() {
   fetchFromMemoryPromise()
@@ -278,6 +281,44 @@ function readWriteWithSpread() {
 						</code></pre>
 					<p class="fragment">Though it is asynchronous, but this is still sequential</p>	
 					<p class="fragment">remote call won't happen until memory read finishes</p>	<p class="fragment">Can we improve further?</p>
+				</section>
+				<section>
+					<h3>By sending them in parallel</h3>
+					<pre><code data-trim>
+function readWriteParallel() {
+  var memoryPromise = fetchFromMemoryPromise();
+  var remotePromise = fetchFromRemoteCallPromise();
+
+  Q.all([memoryPromise, remotePromise])
+  .spread(function(memoryData, remoteData) {
+    printData(memoryData + "-" + remoteData);
+  })
+  .fail(function(reason) {
+    console.log(reason);
+  });
+};
+						</code></pre>
+					<p class="fragment">Well, it's actually not in parallel</p>	
+					<p class="fragment">But one promise does not have to wait for other promise to be fulfilled</p>	
+				</section>
+				<section>
+					<h3>Show me how to create promise!</h3>
+					<pre><code data-trim>
+function fetchFromMemoryPromise() {
+  var deferred = Q.defer();
+  setTimeout(function() {
+    if(isExceptionCase()){
+      deferred.reject("Memory fetch failed");	
+    }else{
+      deferred.resolve('This is data from memory');
+    }
+  }, 3000);
+  return deferred.promise;
+};						</code></pre>
+					<p class="fragment">Create a deferred object</p>	
+					<p class="fragment">Resolve the deferred on success condition</p>	
+					<p class="fragment">Reject the deferrer on failure condition</p>	
+					<p class="fragment">Create a promise from deferred and return</p>	
 				</section>
 			</div>
 		</div>
