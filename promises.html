@@ -57,9 +57,11 @@
 					<h2>A typical Javascript callback</h2>
 					<pre><code data-trim>
 function readFile(filePath) {
-  var fs = require('fs');
-  fs.readFile(filename, 'utf8', function(err, data) {
+  var filesystem = require('fs');
+
+  filesystem.readFile(filename, 'utf8', function(err, data) {
     if (err) throw err;
+
     console.log('OK: ' + filename);
     console.log(data)
   });
@@ -82,14 +84,15 @@ function fetchFromMemory(callback) {
 				<section>
 					<h3>Let's add some random error</h3>
 					<pre><code data-trim>
-function isExceptionCase() {
+function isError() {  
   return Math.floor((Math.random()*100)+1) % 2 == 0;
 };
 
-function fetchFromMemory(callback) {
-  if(isExceptionCase()){
+function fetchFromMemory(callback) {  
+  if(isError()){
     throw "Memory fetch failed";
   }
+  
   setTimeout(function() {
     callback('This is data from memory')
   }, 3000);
@@ -100,9 +103,10 @@ function fetchFromMemory(callback) {
 					<h3>Fetch from remote call</h3>
 					<pre><code data-trim>
 function fetchFromRemoteCall(callback) {
-  if(isExceptionCase()){
+  if(isError()){
    throw "Remote call failed";
   }
+
   setTimeout(function() {
     callback('This is data from remote call')
   }, 3000);
@@ -124,21 +128,21 @@ function readWrite() {
 				<section>
 					<h3>Let's add some error handling</h3>
 					<pre><code data-trim>
-function readWrite() {
-  try{
-    fetchFromMemory(function(memoryData) {
-      try {
+function readWrite() {  
+  try{    
+    fetchFromMemory(function(memoryData) {      
+      try {        
         fetchFromRemoteCall(function(remoteCallData) {
           printData(memoryData + "-" + remoteCallData);
         });
       }
       catch(err){
-        console.error("Read from remote call failed");
+        console.error(err);
       }   
     });
   }	
   catch(err){
-    console.error("Read from memory failed"); 
+    console.error(err); 
   }
 };
 					</code></pre>
@@ -188,51 +192,42 @@ function readWrite() {
         });
       }
       catch(err){
-        console.error("Read from remote call failed");
+        console.error(err);
       }   
     });
   }	
   catch(err){
-    console.error("Read from memory failed"); 
+    console.error(err); 
   }
 };
 					</code></pre>
 				</section>					
 				<section>
-					<h3>What if we turn it into this...</h3>
+					<h3>What if we turn the code into this? </h3>
 					<pre><code data-trim>
-function readWritePromises() {
+function readWrite() {
   var memoryData;
-  fetchFromMemoryPromise()
-  .then(function(data) {
-    memoryData = data;
-    return fetchFromRemoteCallPromise(); 
+
+  fetchFromMemory()
+  .then(function(dataReadFromMemory) {
+    memoryData = dataReadFromMemory;
+    return fetchFromRemoteCall(); 
   })
-  .then(function(data) {
-    printData(memoryData + "-" + data);
+  .then(function(dataReadFromRemote) {
+    printData(memoryData + "-" + dataReadFromRemote);
   })
   .fail(function(reason) {
     console.error(reason);
   });
 };
 						</code></pre>
+				<p class="fragment">But this restructuring of code can be achieved by using Promises</p>			
 				</section>					
 				<section>
 					<h2>What are promises?</h2>
 					<p>
 						Promises are an abstraction for asynchronous programming. They are like proxies for an asynchronous computation. In future, they are evaluated into a desired value or an undesirable error.
 					</p>
-				</section>
-				<section>
-					<h2>Advantages?</h2>
-					<ul>
-						<li class="fragment">More natural flow of control structure</li>
-						<li class="fragment">They are truly asynchronous</li>
-						<li class="fragment">Can easily be chained</li>
-						<li class="fragment">Values are automatically pushed down</li>
-						<li class="fragment">Errors are automatically bubbled up</li>
-						<li class="fragment">Further code abstractions can be created</li>
-					</ul>
 				</section>
 				<section>
 					<h2 style="text-transform:none;">q</h2>
@@ -246,13 +241,14 @@ function readWritePromises() {
 					<pre><code data-trim>
 function readWritePromises() {
   var memoryData;
+
   fetchFromMemoryPromise()
-  .then(function(data) {
-    memoryData = data;
+  .then(function(dataFromMemoryFetch) {
+    memoryData = dataFromMemoryFetch;
     return fetchFromRemoteCallPromise(); 
   })
-  .then(function(data) {
-    printData(memoryData + "-" + data);
+  .then(function(dataFromRemoteFetch) {
+    printData(memoryData + "-" + dataFromRemoteFetch);
   })
   .fail(function(reason) {
     console.error(reason);
@@ -302,23 +298,41 @@ function readWriteParallel() {
 					<p class="fragment">But one promise does not have to wait for other promise to be fulfilled</p>	
 				</section>
 				<section>
-					<h3>Show me how to create promise!</h3>
-					<pre><code data-trim>
+					<h3>For God Sake, show me how to create promises!</h3>
+					<div class="fragment">
+						<pre><code data-trim>
 function fetchFromMemoryPromise() {
   var deferred = Q.defer();
+  
   setTimeout(function() {
-    if(isExceptionCase()){
+    if(isError()){
       deferred.reject("Memory fetch failed");	
     }else{
       deferred.resolve('This is data from memory');
     }
   }, 3000);
+  
   return deferred.promise;
 };						</code></pre>
+					</div>
 					<p class="fragment">Create a deferred object</p>	
 					<p class="fragment">Resolve the deferred on success condition</p>	
-					<p class="fragment">Reject the deferrer on failure condition</p>	
-					<p class="fragment">Create a promise from deferred and return</p>	
+					<p class="fragment">Reject the deferred on failure condition</p>	
+					<p class="fragment">Create a promise from deferred and return the promise</p>	
+				</section>
+				<section>
+					<h2>Advantages?</h2>
+					<ul>
+						<li class="fragment">More natural flow of control structure</li>
+						<li class="fragment">They are truly asynchronous</li>
+						<li class="fragment">Can easily be chained</li>
+						<li class="fragment">Values are automatically pushed down</li>
+						<li class="fragment">Errors are automatically bubbled up</li>
+						<li class="fragment">Further code abstractions can be created</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Questions?</h2>
 				</section>
 			</div>
 		</div>
